@@ -37,7 +37,7 @@ cp config.json.example config.json
 You can specify in the config under `keep-last` how many backups you want to keep per server.  
 The newest ones are kept and old ones are deleted.  
 
-**6. Choose a server mode and set servers**  
+**6. Choose a server mode**  
 The script supports two different modes:  
 - **exclude**  
   - All servers are selected, except servers in the specified list  
@@ -50,7 +50,7 @@ You can set the preferred mode in the config under `mode`.
 According to the selected mode, you can set your Server IDs in the config under `servers`.
 
 **8. Choose a name for your snapshots (optional)**  
-Specify what you want your snapshots to be called in the config under `snapshot-name`.  
+Specify how you want your snapshots to be named under `snapshot-name` in the config.  
 By default they are named `<server name>-<timestamp>`.  
 
 | Placeholder | Value               |
@@ -76,6 +76,6 @@ This crontab executes the script every day at 1am.
 | --------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | Snapshot Backups can be created at own times (Backups at given time)  | Snapshots are limited (but higher limit can be requested)           |
 | Any number can be kept (Backups only maximum 3)                       | May be more expensive for extremely large servers (lots of storage) |
-| Are not server bound                                                  |                                                                     |
 | Are cheaper than backups for smaller servers (little storage space)   |                                                                     |
+| Are not server bound                                                  |                                                                     |
 | New servers can be created directly from the snapshot                 |                                                                     |
