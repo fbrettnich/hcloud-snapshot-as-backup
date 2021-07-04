@@ -73,9 +73,14 @@ def cleanup_snapshots():
 
         for k in sl:
             si = sl[k]
-            if len(si) > servers_keep_last[k]:
+            keep_last = config['keep-last']
+
+            if k in servers_keep_last:
+                keep_last = servers_keep_last[k]
+
+            if len(si) > keep_last:
                 si.sort(reverse=True)
-                si = si[servers_keep_last[k]:]
+                si = si[keep_last:]
 
                 for s in si:
                     delete_snapshots(snapshot_id=s, server_id=k)
