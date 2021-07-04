@@ -3,6 +3,7 @@ This script automatically creates snapshots of your Hetzner Cloud Servers and de
 Snapshots then work like the automatic backups offered directly by Hetzner, with the advantage that more backups and at self-defined times can be created.  
 
 - [Installation](#installation)
+- [About Labels](#about-labels)
 - [Run script](#run-script)
 - [Why is this script useful?](#why-is-this-script-useful)
 
@@ -59,8 +60,15 @@ By default they are named `<server name>-<timestamp>`.
 | %name%      | Name of the server  |
 | %timestamp% | Current timestamp   |
 
+## About Labels  
+This script works with the powerful Hetzner Labels.  
+- Snapshots
+  - Snapshots are provided with the label `AUTOBACKUP`
+  - This makes it possible to see which snapshot was automatically created by the script
+  - The script ignores all snapshots without this label (Therefore, only old snapshots with this label are deleted)
+  - If you want to keep an automatically generated snapshot, just remove the label `AUTOBACKUP`
 
-## Run script
+## Run script  
 ```
 python3 /opt/hcloud-snapshot-as-backup/snapshot-as-backup.py
 ```
@@ -69,9 +77,9 @@ To execute the script automatically, you can create a crontab: [Crontab Generato
 ```
 0 1 * * * python3 /opt/hcloud-snapshot-as-backup/snapshot-as-backup.py >/dev/null 2>&1
 ```
-This crontab executes the script every day at 1am.
+This crontab executes the script every day at 1am.  
 
-## Why is this script useful?
+## Why is this script useful?  
 | Advantages                                                            | Disadvantages                                                       |
 | --------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | Snapshot Backups can be created at own times (Backups at given time)  | Snapshots are limited (but higher limit can be requested)           |

@@ -40,7 +40,7 @@ def create_snapshot(server_id, snapshot_desc):
     url = base_url + "/servers/" + str(server_id) + "/actions/create_image"
     r = requests.post(
         url=url,
-        json={"description": snapshot_desc, "type": "snapshot"},
+        json={"description": snapshot_desc, "type": "snapshot", "labels": {"AUTOBACKUP": ""}},
         headers=headers
     )
 
@@ -53,7 +53,7 @@ def create_snapshot(server_id, snapshot_desc):
 
 
 def cleanup_snapshots(keep_last):
-    url = base_url + "/images?type=snapshot"
+    url = base_url + "/images?type=snapshot&label_selector=AUTOBACKUP"
     r = requests.get(url=url, headers=headers)
 
     if not r.ok:
