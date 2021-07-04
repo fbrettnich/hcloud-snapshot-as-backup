@@ -1,6 +1,7 @@
 # Hetzner Cloud | Snapshot-as-Backup  
 This script automatically creates snapshots of your Hetzner Cloud Servers and deletes the old ones.  
 Snapshots then work like the automatic backups offered directly by Hetzner, with the advantage that more backups and at self-defined times can be created.  
+For ease of use, the script works with the powerful labels directly in the Hetzner Cloud Console. Just add labels to the servers and you are done.  
 
 - [Installation](#installation)
 - [About Labels](#about-labels)
@@ -34,23 +35,16 @@ cp config.json.example config.json
 5. Click on "Create API Token" and create a new token with read & write permission
 6. Copy the key and paste it into the config under `api-token`
 
-**5. Choose how many backups you want to keep**  
-You can specify in the config under `keep-last` how many backups you want to keep per server.  
+**5. Choose how many backups you want to keep by default**  
+You can specify in the config under `keep-last` how many backups you want to keep per server by default.  
+Labels can be used to overwrite the default value directly in the Hetzner Cloud Console.  
+Add the label `AUTOBACKUP.KEEP-LAST` with the value that should apply to the server.  
 The newest ones are kept and old ones are deleted.  
 
-**6. Choose a server mode**  
-The script supports two different modes:  
-- **exclude**  
-  - All servers are selected, except servers in the specified list  
-- **only**  
-  - Only the servers from the list are used, all others are ignored  
+**6. Add label to servers that should be backed up**  
+All servers that should be included by the script and automatic snapshot backups should be created must have the label `AUTOBACKUP` with the value `true`.  
 
-You can set the preferred mode in the config under `mode`.
-
-**7. Add your servers to the list (optional)**  
-According to the selected mode, you can set your Server IDs in the config under `servers`.
-
-**8. Choose a name for your snapshots (optional)**  
+**7. Choose a name for your snapshots (optional)**  
 Specify how you want your snapshots to be named under `snapshot-name` in the config.  
 By default they are named `<server name>-<timestamp>`.  
 
@@ -62,11 +56,21 @@ By default they are named `<server name>-<timestamp>`.
 
 ## About Labels  
 This script works with the powerful Hetzner Labels.  
-- Snapshots
-  - Snapshots are provided with the label `AUTOBACKUP`
-  - This makes it possible to see which snapshot was automatically created by the script
-  - The script ignores all snapshots without this label (Therefore, only old snapshots with this label are deleted)
-  - If you want to keep an automatically generated snapshot, just remove the label `AUTOBACKUP`
+- **Server**
+  - `AUTOBACKUP`
+    - Server with label `AUTOBACKUP` and value `true` are included by the script
+    - This makes it possible to specify directly in the Hetzner Cloud Console for which servers automatic snapshot backups should be created
+  - `AUTOBACKUP.KEEP-LAST` (optional)
+    - The label `AUTOBACKUP.KEEP-LAST` can be used to specify how many backups should be kept for this server
+    - If this label is not specified, the default value from the config is used
+- **Snapshots**
+  - `AUTOBACKUP`
+    - Snapshots are provided with the label `AUTOBACKUP`
+    - This makes it possible to see which snapshot was automatically created by the script
+    - The script ignores all snapshots without this label (Therefore, only old snapshots with this label are deleted)
+    - If you want to keep an automatically generated snapshot, just remove the label `AUTOBACKUP`
+
+![Server-Labels](https://raw.githubusercontent.com/fbrettnich/hcloud-snapshot-as-backup/main/.github/images/server-labels.png "Hetzner Cloud Console: Server Labels")
 
 ## Run script  
 ```

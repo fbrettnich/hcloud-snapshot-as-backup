@@ -2,17 +2,17 @@
 # Licensed under MIT (https://github.com/fbrettnich/hcloud-snapshot-as-backup/blob/main/LICENSE)
 
 import os
-import sys
 import json
 import time
 import requests
 
 base_url = "https://api.hetzner.cloud/v1"
 servers = {}
+servers_keep_last = {}
 
 
 def get_servers(page=1):
-    url = base_url + "/servers?page=" + str(page)
+    url = base_url + "/servers?label_selector=AUTOBACKUP=true&page=" + str(page)
     r = requests.get(url=url, headers=headers)
 
     if not r.ok:
@@ -24,13 +24,16 @@ def get_servers(page=1):
         np = r['meta']['pagination']['next_page']
 
         for s in r['servers']:
-            if config['mode'] == "exclude":
-                if s['id'] not in config['servers']:
-                    servers[s['id']] = s
+            servers[s['id']] = s
 
-            elif config['mode'] == "only":
-                if s['id'] in config['servers']:
-                    servers[s['id']] = s
+            keep_last = config['keep-last']
+            if "AUTOBACKUP.KEEP-LAST" in s['labels']:
+                keep_last = int(s['labels']['AUTOBACKUP.KEEP-LAST'])
+
+            if keep_last < 1:
+                keep_last = 1
+
+            servers_keep_last[s['id']] = keep_last
 
         if np is not None:
             get_servers(np)
@@ -52,7 +55,7 @@ def create_snapshot(server_id, snapshot_desc):
         print(f"Snapshot #{image_id} (Server #{server_id}) has been created")
 
 
-def cleanup_snapshots(keep_last):
+def cleanup_snapshots():
     url = base_url + "/images?type=snapshot&label_selector=AUTOBACKUP"
     r = requests.get(url=url, headers=headers)
 
@@ -70,18 +73,12 @@ def cleanup_snapshots(keep_last):
 
         for k in sl:
             si = sl[k]
-            if len(si) > keep_last:
+            if len(si) > servers_keep_last[k]:
                 si.sort(reverse=True)
-                si = si[keep_last:]
+                si = si[servers_keep_last[k]:]
 
                 for s in si:
-                    if config['mode'] == "exclude":
-                        if k not in config['servers']:
-                            delete_snapshots(snapshot_id=s, server_id=k)
-
-                    elif config['mode'] == "only":
-                        if k in config['servers']:
-                            delete_snapshots(snapshot_id=s, server_id=k)
+                    delete_snapshots(snapshot_id=s, server_id=k)
 
 
 def delete_snapshots(snapshot_id, server_id):
@@ -105,19 +102,15 @@ if __name__ == '__main__':
         "Authorization": "Bearer " + config['api-token'],
     }
 
-    if config['mode'] != "exclude" and config['mode'] != "only":
-        print(f"Invalid server mode: {config['mode']}")
-        print("Possible modes: exclude, only")
-        sys.exit(1)
-
     get_servers()
 
     for server in servers:
         create_snapshot(
             server_id=server,
             snapshot_desc=str(config['snapshot-name'])
-                .replace("%id%", str(servers[server]['id']))
+                .replace("%id%", str(server))
                 .replace("%name%", servers[server]['name'])
                 .replace("%timestamp%", str(int(time.time())))
         )
-        cleanup_snapshots(keep_last=config['keep-last'])
+
+    cleanup_snapshots()

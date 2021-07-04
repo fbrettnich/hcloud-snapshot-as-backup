@@ -1,11 +1,5 @@
 {
   "api-token": "",
   "snapshot-name": "%name%-%timestamp%",
-  "keep-last": 3,
-  "mode": "exclude",
-  "servers": [
-    12345678,
-    23456789,
-    34567890
-  ]
+  "keep-last": 3
 }
