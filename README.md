@@ -24,7 +24,7 @@ pip3 install -r /opt/hcloud-snapshot-as-backup/requirements.txt
 **3. Copy config.json**  
 ```
 cd /opt/hcloud-snapshot-as-backup/
-cp config.json.example config.json
+cp config-example.json config.json
 ```
 
 **4. Generate Hetzner Cloud Console API-Key**  
