@@ -87,7 +87,7 @@ This crontab executes the script every day at 1am.
 | Advantages                                                            | Disadvantages                                                       |
 | --------------------------------------------------------------------- | ------------------------------------------------------------------- |
 | Snapshot Backups can be created at own times (Backups at given time)  | Snapshots are limited (but higher limit can be requested)           |
-| Any number can be kept (Backups only maximum 3)                       | May be more expensive for extremely large servers (lots of storage) |
+| Any number can be kept (Backups only maximum 7)                       | May be more expensive for extremely large servers (lots of storage) |
 | Are cheaper than backups for smaller servers (little storage space)   |                                                                     |
 | Are not server bound                                                  |                                                                     |
 | New servers can be created directly from the snapshot                 |                                                                     |
