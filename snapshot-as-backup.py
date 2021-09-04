@@ -9,6 +9,7 @@ import requests
 base_url = "https://api.hetzner.cloud/v1"
 servers = {}
 servers_keep_last = {}
+snapshot_list = {}
 
 
 def get_servers(page=1):
@@ -55,35 +56,42 @@ def create_snapshot(server_id, snapshot_desc):
         print(f"Snapshot #{image_id} (Server #{server_id}) has been created")
 
 
-def cleanup_snapshots():
-    url = base_url + "/images?type=snapshot&label_selector=AUTOBACKUP"
+def get_snapshots(page=1):
+    url = base_url + "/images?type=snapshot&label_selector=AUTOBACKUP&page=" + str(page)
     r = requests.get(url=url, headers=headers)
 
     if not r.ok:
-        print(f"Snapshots could not be retrieved: {r.reason}")
+        print(f"Snapshots Page #{page} could not be retrieved: {r.reason}")
         print(r.text)
 
     else:
-        sl = {}
-        for i in r.json()['images']:
-            if i['created_from']['id'] in sl:
-                sl[i['created_from']['id']].append(i['id'])
+        r = r.json()
+        np = r['meta']['pagination']['next_page']
+
+        for i in r['images']:
+            if i['created_from']['id'] in snapshot_list:
+                snapshot_list[i['created_from']['id']].append(i['id'])
             else:
-                sl[i['created_from']['id']] = [i['id']]
+                snapshot_list[i['created_from']['id']] = [i['id']]
 
-        for k in sl:
-            si = sl[k]
-            keep_last = config['keep-last']
+        if np is not None:
+            get_snapshots(np)
 
-            if k in servers_keep_last:
-                keep_last = servers_keep_last[k]
 
-            if len(si) > keep_last:
-                si.sort(reverse=True)
-                si = si[keep_last:]
+def cleanup_snapshots():
+    for k in snapshot_list:
+        si = snapshot_list[k]
+        keep_last = config['keep-last']
 
-                for s in si:
-                    delete_snapshots(snapshot_id=s, server_id=k)
+        if k in servers_keep_last:
+            keep_last = servers_keep_last[k]
+
+        if len(si) > keep_last:
+            si.sort(reverse=True)
+            si = si[keep_last:]
+
+            for s in si:
+                delete_snapshots(snapshot_id=s, server_id=k)
 
 
 def delete_snapshots(snapshot_id, server_id):
@@ -118,4 +126,5 @@ if __name__ == '__main__':
                 .replace("%timestamp%", str(int(time.time())))
         )
 
+    get_snapshots()
     cleanup_snapshots()
