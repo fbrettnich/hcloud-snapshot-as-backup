@@ -1,0 +1,12 @@
+version: '3.3'
+
+services:
+    mysql:
+      container_name: snapshot-as-backup
+      image: fbrettnich/hcloud-snapshot-as-backup
+      restart: unless-stopped
+      environment:
+        - API_TOKEN=
+        - SNAPSHOT_NAME="%name%-%timestamp%"
+        - KEEP_LAST=3
+        - CRON="0 1 * * *"
