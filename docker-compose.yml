@@ -9,4 +9,4 @@ services:
         - API_TOKEN=
         - SNAPSHOT_NAME="%name%-%timestamp%"
         - KEEP_LAST=3
-        - CRON="0 1 * * *"
+        - CRON=0 1 * * *
