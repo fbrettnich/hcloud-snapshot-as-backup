@@ -6,4 +6,4 @@ COPY . .
 
 RUN pip3 install -r requirements.txt
 
-CMD [ "python3", "/app/snapshot-as-backup.py"]
+CMD [ "python3", "-u", "/app/snapshot-as-backup.py"]
