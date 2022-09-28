@@ -21,7 +21,7 @@ For ease of use, the script works with the powerful labels directly in the Hetzn
 ### Installation: With Docker (Recommended)
 **1. Run the docker image**  
 ```
-docker run -d --name snapshot-as-backup \
+docker run -d --name hcloud-snapshot-as-backup \
   --env API_TOKEN=YOUR-API-TOKEN \
   --env SNAPSHOT_NAME="%name%-%timestamp%" \
   --env KEEP_LAST=3 \
