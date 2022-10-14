@@ -1,7 +1,6 @@
 FROM python:3.9-alpine
 
 ENV IN_DOCKER_CONTAINER true
-ENV EXTERNAL_CRON false
 WORKDIR /app
 COPY . .
 

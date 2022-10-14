@@ -154,8 +154,8 @@ if __name__ == '__main__':
         snapshot_name = os.environ.get('SNAPSHOT_NAME', "%name%-%timestamp%")
         keep_last_default = int(os.environ.get('KEEP_LAST', 3))
         
-        EXTERNAL_CRON = os.environ.get('EXTERNAL_CRON', False)
-        if EXTERNAL_CRON == 'true':
+        CRON = os.environ.get('CRON', '0 1 * * *')
+        if CRON == 'false':
             run()
         
         else:

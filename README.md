@@ -31,7 +31,7 @@ docker run -d --name hcloud-snapshot-as-backup \
 
 Replace `YOUR-API-TOKEN` with your [Hetzner Cloud Console API-Key](#generate-hetzner-cloud-console-api-key).
 
-Optional: add `--env EXTERNAL_CRON=true` to schedule outside of the container, especially using services like [Google Cloud Run jobs](https://cloud.google.com/run/docs/create-jobs) or [Amazon ECS scheduled tasks](https://docs.aws.amazon.com/AmazonECS/latest/userguide/scheduled_tasks.html)
+Optional: use `--env CRON=false` to schedule outside of the container, especially using services like [Google Cloud Run jobs](https://cloud.google.com/run/docs/create-jobs) or [Amazon ECS scheduled tasks](https://docs.aws.amazon.com/AmazonECS/latest/userguide/scheduled_tasks.html)
 
 ---
 
