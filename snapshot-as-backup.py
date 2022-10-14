@@ -153,19 +153,25 @@ if __name__ == '__main__':
         api_token = os.environ.get('API_TOKEN')
         snapshot_name = os.environ.get('SNAPSHOT_NAME', "%name%-%timestamp%")
         keep_last_default = int(os.environ.get('KEEP_LAST', 3))
-        cron_string = os.environ.get('CRON', '0 1 * * *')
-        cron_scheduler = CronScheduler(cron_string)
-
-        print(f"Starting CronScheduler [{cron_string}]...")
-
-        while True:
-            try:
-                if cron_scheduler.time_for_execution():
-                    print("Script is now executed by cron...")
-                    run()
-            except KeyboardInterrupt:
-                sys.exit(0)
-
+        
+        EXTERNAL_CRON = os.environ.get('EXTERNAL_CRON', False)
+        if EXTERNAL_CRON == 'true':
+            run()
+        
+        else:
+            cron_string = os.environ.get('CRON', '0 1 * * *')
+            cron_scheduler = CronScheduler(cron_string)
+            
+            print(f"Starting CronScheduler [{cron_string}]...")
+            
+            while True:
+                try:
+                    if cron_scheduler.time_for_execution():
+                        print("Script is now executed by cron...")
+                        run()
+                except KeyboardInterrupt:
+                    sys.exit(0)
+        
     else:
         with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), "config.json"), "r") as config_file:
             config = json.load(config_file)
