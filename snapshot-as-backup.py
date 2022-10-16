@@ -154,12 +154,12 @@ if __name__ == '__main__':
         snapshot_name = os.environ.get('SNAPSHOT_NAME', "%name%-%timestamp%")
         keep_last_default = int(os.environ.get('KEEP_LAST', 3))
         
-        CRON = os.environ.get('CRON', '0 1 * * *')
-        if CRON == 'false':
+        cron_string = os.environ.get('CRON', '0 1 * * *')
+        
+        if cron_string is False or cron_string.lower() == 'false':
             run()
         
         else:
-            cron_string = os.environ.get('CRON', '0 1 * * *')
             cron_scheduler = CronScheduler(cron_string)
             
             print(f"Starting CronScheduler [{cron_string}]...")
