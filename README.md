@@ -31,6 +31,8 @@ docker run -d --name hcloud-snapshot-as-backup \
 
 Replace `YOUR-API-TOKEN` with your [Hetzner Cloud Console API-Key](#generate-hetzner-cloud-console-api-key).
 
+Optional: Set `CRON` to `false` to disable CronScheduler in the container and schedule outside of the container, especially for using services like [Google Cloud Run jobs](https://cloud.google.com/run/docs/create-jobs) or [Amazon ECS scheduled tasks](https://docs.aws.amazon.com/AmazonECS/latest/userguide/scheduled_tasks.html)
+
 ---
 
 ### Installation: With Docker Compose
@@ -124,15 +126,17 @@ By default they are named `<server name>-<timestamp>`.
 | %timestamp% | Current timestamp  |
 
 ### Docker: Specify how often the script should be executed via cron
-If you run the script in Docker, a cron must be specified in the environment variables under `CRON`.  
+If you run the script in Docker, a cron may be specified in the environment variables under `CRON`.  
 The cron is used to define how often and at which times the script should be executed.  
+Optionally, set `CRON` to `false` to disable CronScheduler in the container and schedule outside of the container.
+
 Here you can create a cron: [Cron Generator](https://crontab.guru/#0_1_*_*_*)  
 
 For example:  
 ```
 0 1 * * *
 ```
-This cron executes the script every day at 1am.  
+This cron executes the script every day at 1am.
 
 ## About Labels  
 This script works with the powerful Hetzner Labels.  
