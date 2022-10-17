@@ -160,10 +160,9 @@ if __name__ == '__main__':
             run()
         
         else:
-            cron_scheduler = CronScheduler(cron_string)
-            
             print(f"Starting CronScheduler [{cron_string}]...")
-            
+            cron_scheduler = CronScheduler(cron_string)
+                        
             while True:
                 try:
                     if cron_scheduler.time_for_execution():
