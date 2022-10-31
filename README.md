@@ -106,6 +106,8 @@ When you run the script via command/crontab, the options are set via the configu
 5. Click on "Create API Token" and create a new token with read & write permission
 6. Copy the key and paste it into the environment variables under `API_TOKEN` or in the config under `api-token`
 
+![Create Hetzner API Token Gif](https://raw.githubusercontent.com/fbrettnich/hcloud-snapshot-as-backup/main/.github/images/create-hetzner-api-token.gif)
+
 ### Choose how many backups you want to keep by default  
 You can specify in the environment variables under `KEEP_LAST` or in the config under `keep-last` how many backups you want to keep per server by default.  
 Labels can be used to overwrite the default value directly in the Hetzner Cloud Console.  
