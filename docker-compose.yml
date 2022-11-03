@@ -1,8 +1,7 @@
 version: '3.3'
 
 services:
-    mysql:
-      container_name: hcloud-snapshot-as-backup
+    app:
       image: fbrettnich/hcloud-snapshot-as-backup
       restart: unless-stopped
       environment:
