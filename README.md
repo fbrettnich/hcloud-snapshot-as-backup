@@ -121,11 +121,13 @@ All servers that should be included by the script and automatic snapshot backups
 Specify how you want your snapshots to be named in the environment variables under `SNAPSHOT_NAME` or under `snapshot-name` in the config.  
 By default they are named `<server name>-<timestamp>`.  
 
-| Placeholder | Value              |
-| ----------- | ------------------ |
-| %id%        | ID of the server   |
-| %name%      | Name of the server |
-| %timestamp% | Current timestamp  |
+| Placeholder | Value                     |
+|-------------|---------------------------|
+| %id%        | ID of the server          |
+| %name%      | Name of the server        |
+| %timestamp% | Current timestamp         |
+| %date%      | Current date (`%Y-%m-%d`) |
+| %time%      | Current time (`%H:%M:%S`) |
 
 ### Docker: Specify how often the script should be executed via cron
 If you run the script in Docker, a cron may be specified in the environment variables under `CRON`.  

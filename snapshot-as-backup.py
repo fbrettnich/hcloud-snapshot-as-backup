@@ -135,6 +135,8 @@ def run():
             .replace("%id%", str(server))
             .replace("%name%", servers[server]['name'])
             .replace("%timestamp%", str(int(time.time())))
+            .replace("%date%", str(time.strftime("%Y-%m-%d")))
+            .replace("%time%", str(time.strftime("%H:%M:%S")))
         )
 
     get_snapshots()
@@ -153,16 +155,16 @@ if __name__ == '__main__':
         api_token = os.environ.get('API_TOKEN')
         snapshot_name = os.environ.get('SNAPSHOT_NAME', "%name%-%timestamp%")
         keep_last_default = int(os.environ.get('KEEP_LAST', 3))
-        
+
         cron_string = os.environ.get('CRON', '0 1 * * *')
-        
+
         if cron_string is False or cron_string.lower() == 'false':
             run()
-        
+
         else:
             print(f"Starting CronScheduler [{cron_string}]...")
             cron_scheduler = CronScheduler(cron_string)
-                        
+
             while True:
                 try:
                     if cron_scheduler.time_for_execution():
@@ -170,7 +172,7 @@ if __name__ == '__main__':
                         run()
                 except KeyboardInterrupt:
                     sys.exit(0)
-        
+
     else:
         with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), "config.json"), "r") as config_file:
             config = json.load(config_file)
