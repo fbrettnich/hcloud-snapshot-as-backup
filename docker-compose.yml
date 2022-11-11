@@ -4,6 +4,8 @@ services:
     app:
       image: fbrettnich/hcloud-snapshot-as-backup
       restart: unless-stopped
+      volumes:
+        - /etc/localtime:/etc/localtime:ro
       environment:
         - API_TOKEN=
         - SNAPSHOT_NAME="%name%-%timestamp%"

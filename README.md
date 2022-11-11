@@ -22,14 +22,15 @@ For ease of use, the script works with the powerful labels directly in the Hetzn
 **1. Run the docker image**  
 ```
 docker run -d --name hcloud-snapshot-as-backup \
-  --env API_TOKEN=YOUR-API-TOKEN \
+  -v /etc/localtime:/etc/localtime:ro \
+  --env API_TOKEN= \
   --env SNAPSHOT_NAME="%name%-%timestamp%" \
   --env KEEP_LAST=3 \
   --env CRON="0 1 * * *" \
   fbrettnich/hcloud-snapshot-as-backup
 ```
 
-Replace `YOUR-API-TOKEN` with your [Hetzner Cloud Console API-Key](#generate-hetzner-cloud-console-api-key).
+Put your [Hetzner Cloud Console API-Key](#generate-hetzner-cloud-console-api-key) after `API_TOKEN=` in command line 3.
 
 Optional: Set `CRON` to `false` to disable CronScheduler in the container and schedule outside of the container, especially for using services like [Google Cloud Run jobs](https://cloud.google.com/run/docs/create-jobs) or [Amazon ECS scheduled tasks](https://docs.aws.amazon.com/AmazonECS/latest/userguide/scheduled_tasks.html).
 
