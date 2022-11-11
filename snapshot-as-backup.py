@@ -173,6 +173,8 @@ if __name__ == '__main__':
                 except KeyboardInterrupt:
                     sys.exit(0)
 
+                time.sleep(1)
+
     else:
         with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), "config.json"), "r") as config_file:
             config = json.load(config_file)
