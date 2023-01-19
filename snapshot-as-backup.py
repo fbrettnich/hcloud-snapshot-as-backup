@@ -46,20 +46,26 @@ def get_servers(page=1):
             get_servers(np)
 
 
-def create_snapshot(server_id, snapshot_desc):
-    url = base_url + "/servers/" + str(server_id) + "/actions/create_image"
-    r = requests.post(
-        url=url,
-        json={"description": snapshot_desc, "type": "snapshot", "labels": {"AUTOBACKUP": ""}},
-        headers=headers
-    )
+def start_server(server_id):
+    url = base_url + "/servers/" + str(server_id) + "/actions/poweron"
+    r = requests.post(url=url, headers=headers)
 
     if not r.ok:
-        print(f"Snapshot for Server #{server_id} could not be created: {r.reason}")
+        print(f"Server #{server_id} could not be started: {r.reason}")
         print(r.text)
     else:
-        image_id = r.json()['image']['id']
-        print(f"Snapshot #{image_id} (Server #{server_id}) has been created")
+        print(f"Server #{server_id} was successfully started")
+
+
+def shutdown_server(server_id):
+    url = base_url + "/servers/" + str(server_id) + "/actions/shutdown"
+    r = requests.post(url=url, headers=headers)
+
+    if not r.ok:
+        print(f"Server #{server_id} could not be stopped: {r.reason}")
+        print(r.text)
+    else:
+        print(f"Server #{server_id} was successfully stopped")
 
 
 def get_snapshots(page=1):
@@ -84,6 +90,33 @@ def get_snapshots(page=1):
             get_snapshots(np)
 
 
+def create_snapshot(server_id, snapshot_desc):
+    url = base_url + "/servers/" + str(server_id) + "/actions/create_image"
+    r = requests.post(
+        url=url,
+        json={"description": snapshot_desc, "type": "snapshot", "labels": {"AUTOBACKUP": ""}},
+        headers=headers
+    )
+
+    if not r.ok:
+        print(f"Snapshot for Server #{server_id} could not be created: {r.reason}")
+        print(r.text)
+    else:
+        image_id = r.json()['image']['id']
+        print(f"Snapshot #{image_id} (Server #{server_id}) has been created")
+
+
+def delete_snapshots(snapshot_id, server_id):
+    url = base_url + "/images/" + str(snapshot_id)
+    r = requests.delete(url=url, headers=headers)
+
+    if not r.ok:
+        print(f"Snapshot #{snapshot_id} (Server #{server_id}) could not be deleted: {r.reason}")
+        print(r.text)
+    else:
+        print(f"Snapshot #{snapshot_id} (Server #{server_id}) was successfully deleted")
+
+
 def cleanup_snapshots():
     for k in snapshot_list:
         si = snapshot_list[k]
@@ -98,17 +131,6 @@ def cleanup_snapshots():
 
             for s in si:
                 delete_snapshots(snapshot_id=s, server_id=k)
-
-
-def delete_snapshots(snapshot_id, server_id):
-    url = base_url + "/images/" + str(snapshot_id)
-    r = requests.delete(url=url, headers=headers)
-
-    if not r.ok:
-        print(f"Snapshot #{snapshot_id} (Server #{server_id}) could not be deleted: {r.reason}")
-        print(r.text)
-    else:
-        print(f"Snapshot #{snapshot_id} (Server #{server_id}) was successfully deleted")
 
 
 def run():
@@ -129,6 +151,8 @@ def run():
         print("No servers found with label")
 
     for server in servers:
+
+        shutdown_server(server_id=server)
         create_snapshot(
             server_id=server,
             snapshot_desc=str(snapshot_name)
@@ -138,6 +162,7 @@ def run():
             .replace("%date%", str(time.strftime("%Y-%m-%d")))
             .replace("%time%", str(time.strftime("%H:%M:%S")))
         )
+        start_server(server_id=server)
 
     get_snapshots()
 
