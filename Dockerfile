@@ -1,9 +1,22 @@
-FROM python:3.9-alpine
+FROM python:3.17-alpine as base
 
-ENV IN_DOCKER_CONTAINER true
+RUN apk --no-cache add tzdata
+
+
+FROM base as builder
+
+COPY requirements.txt /requirements.txt
+
+RUN pip3 install --prefix=/install -r /requirements.txt
+
+
+FROM base
+
 WORKDIR /app
+
+COPY --from=builder /install /usr/local
 COPY . .
 
-RUN pip3 install -r requirements.txt
+ENV IN_DOCKER_CONTAINER=true
 
 CMD [ "python3", "-u", "/app/snapshot-as-backup.py"]
