@@ -12,10 +12,13 @@ RUN pip3 install --prefix=/install -r /requirements.txt
 
 FROM base
 
+ARG USER=hcloud
+RUN adduser -D $USER
+USER $USER
 WORKDIR /app
 
 COPY --from=builder /install /usr/local
-COPY . .
+COPY --chown=$USER:$USER snapshot-as-backup.py README.md LICENSE .
 
 ENV IN_DOCKER_CONTAINER=true
 
