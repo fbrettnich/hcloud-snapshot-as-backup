@@ -1,4 +1,4 @@
-FROM python:3.17-alpine as base
+FROM python:alpine3.17 as base
 
 RUN apk --no-cache add tzdata
 
