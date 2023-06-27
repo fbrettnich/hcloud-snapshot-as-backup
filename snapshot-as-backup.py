@@ -1,4 +1,3 @@
-# Copyright (c) 2021 Felix Brettnich
 # Licensed under MIT (https://github.com/fbrettnich/hcloud-snapshot-as-backup/blob/main/LICENSE)
 
 import os
