@@ -1,4 +1,5 @@
 {
+  "label-selector": "AUTOBACKUP",
   "api-token": "",
   "snapshot-name": "%name%-%timestamp%",
   "keep-last": 3

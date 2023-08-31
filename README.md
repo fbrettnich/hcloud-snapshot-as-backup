@@ -118,6 +118,9 @@ The newest ones are kept and old ones are deleted.
 ### Add label to servers that should be backed up  
 All servers that should be included by the script and automatic snapshot backups should be created must have the label `AUTOBACKUP` with the value `true`.  
 
+### Change default label to something else
+You can change the default label from `AUTOBACKUP` to something else by changing the `label_selector` value in the config. If in a docker environment you can set `--env LABEL_SELECTOR`. When changing the `label_selector`, you must also use this for the `KEEP-LAST` setting. 
+
 ### Choose a name for your snapshots (optional)  
 Specify how you want your snapshots to be named in the environment variables under `SNAPSHOT_NAME` or under `snapshot-name` in the config.  
 By default they are named `<server name>-<timestamp>`.  
