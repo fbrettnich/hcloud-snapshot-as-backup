@@ -180,9 +180,9 @@ if __name__ == '__main__':
         with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), "config.json"), "r") as config_file:
             config = json.load(config_file)
 
-        label_selector = config['label-selector']
         api_token = config['api-token']
         snapshot_name = config['snapshot-name']
+        label_selector = config['label-selector']
         keep_last_default = int(config['keep-last'])
 
         run()
