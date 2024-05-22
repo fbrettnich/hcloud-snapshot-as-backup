@@ -152,10 +152,9 @@ if __name__ == '__main__':
     IN_DOCKER_CONTAINER = os.environ.get('IN_DOCKER_CONTAINER', False)
 
     if IN_DOCKER_CONTAINER:
-
-        label_selector = os.environ.get('LABEL_SELECTOR', 'AUTOBACKUP')
         api_token = os.environ.get('API_TOKEN')
         snapshot_name = os.environ.get('SNAPSHOT_NAME', "%name%-%timestamp%")
+        label_selector = os.environ.get('LABEL_SELECTOR', 'AUTOBACKUP')
         keep_last_default = int(os.environ.get('KEEP_LAST', 3))
 
         cron_string = os.environ.get('CRON', '0 1 * * *')
