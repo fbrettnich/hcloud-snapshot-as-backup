@@ -10,6 +10,7 @@ from cron_validator import CronScheduler
 base_url = "https://api.hetzner.cloud/v1"
 api_token = ""
 snapshot_name = ""
+label_selector = ""
 keep_last_default = 3
 headers = {}
 servers = {}
@@ -18,7 +19,7 @@ snapshot_list = {}
 
 
 def get_servers(page=1):
-    url = base_url + "/servers?label_selector=AUTOBACKUP=true&page=" + str(page)
+    url = base_url + f"/servers?label_selector={label_selector}=true&page=" + str(page)
     r = requests.get(url=url, headers=headers)
 
     if not r.ok:
@@ -33,8 +34,8 @@ def get_servers(page=1):
             servers[s['id']] = s
 
             keep_last = keep_last_default
-            if "AUTOBACKUP.KEEP-LAST" in s['labels']:
-                keep_last = int(s['labels']['AUTOBACKUP.KEEP-LAST'])
+            if f"{label_selector}.KEEP-LAST" in s['labels']:
+                keep_last = int(s['labels'][f"{label_selector}.KEEP-LAST"])
 
             if keep_last < 1:
                 keep_last = 1
@@ -49,7 +50,7 @@ def create_snapshot(server_id, snapshot_desc):
     url = base_url + "/servers/" + str(server_id) + "/actions/create_image"
     r = requests.post(
         url=url,
-        json={"description": snapshot_desc, "type": "snapshot", "labels": {"AUTOBACKUP": ""}},
+        json={"description": snapshot_desc, "type": "snapshot", "labels": {f"{label_selector}": ""}},
         headers=headers
     )
 
@@ -62,7 +63,7 @@ def create_snapshot(server_id, snapshot_desc):
 
 
 def get_snapshots(page=1):
-    url = base_url + "/images?type=snapshot&label_selector=AUTOBACKUP&page=" + str(page)
+    url = base_url + f"/images?type=snapshot&label_selector={label_selector}&page=" + str(page)
     r = requests.get(url=url, headers=headers)
 
     if not r.ok:
@@ -153,6 +154,7 @@ if __name__ == '__main__':
     if IN_DOCKER_CONTAINER:
         api_token = os.environ.get('API_TOKEN')
         snapshot_name = os.environ.get('SNAPSHOT_NAME', "%name%-%timestamp%")
+        label_selector = os.environ.get('LABEL_SELECTOR', 'AUTOBACKUP')
         keep_last_default = int(os.environ.get('KEEP_LAST', 3))
 
         cron_string = os.environ.get('CRON', '0 1 * * *')
@@ -180,6 +182,7 @@ if __name__ == '__main__':
 
         api_token = config['api-token']
         snapshot_name = config['snapshot-name']
+        label_selector = config['label-selector']
         keep_last_default = int(config['keep-last'])
 
         run()
