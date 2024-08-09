@@ -30,9 +30,9 @@ docker run -d --name hcloud-snapshot-as-backup \
   fbrettnich/hcloud-snapshot-as-backup
 ```
 
-Put your [Hetzner Cloud Console API-Key](#generate-hetzner-cloud-console-api-key) after `API_TOKEN=` in command line 3.
+Put your [Hetzner Cloud Console API-Key](#generate-hetzner-cloud-console-api-key) after `API_TOKEN=` in line 3.
 
-Optional: Set `CRON` to `false` to disable CronScheduler in the container and schedule outside of the container, especially for using services like [Google Cloud Run jobs](https://cloud.google.com/run/docs/create-jobs) or [Amazon ECS scheduled tasks](https://docs.aws.amazon.com/AmazonECS/latest/userguide/scheduled_tasks.html).
+Optional: Set `CRON` to `false` to disable CronScheduler in the container and schedule outside of the container, especially for using services like [Amazon ECS scheduled tasks](https://docs.aws.amazon.com/AmazonECS/latest/userguide/scheduled_tasks.html) or [Google Cloud Run jobs](https://cloud.google.com/run/docs/create-jobs).
 
 ---
 
@@ -165,10 +165,12 @@ This script works with the powerful Hetzner Labels.
 ![Server-Labels](https://raw.githubusercontent.com/fbrettnich/hcloud-snapshot-as-backup/main/.github/images/server-labels.png "Hetzner Cloud Console: Server Labels")
 
 ## Why is this script useful?  
-| Advantages                                                            | Disadvantages                                                       |
-| --------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| Snapshot Backups can be created at own times (Backups at given time)  | Snapshots are limited (but higher limit can be requested)           |
-| Any number can be kept (Backups only maximum 7)                       | May be more expensive for extremely large servers (lots of storage) |
-| Are cheaper than backups for smaller servers (little storage space)   |                                                                     |
-| Are not server bound                                                  |                                                                     |
-| New servers can be created directly from the snapshot                 |                                                                     |
+| Advantages                                                                                                                                                                                                                                            | Disadvantages                                                                                                                                    |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [Snapshot Backups can be created at own times (Backups at given time)](https://docs.hetzner.com/cloud/servers/backups-snapshots/faq/#can-i-pick-my-backup-time)                                                                                       | Snapshots are limited (but higher limit can be requested)                                                                                        |
+| [Any number can be kept (Backups only maximum 7)](https://docs.hetzner.com/cloud/servers/backups-snapshots/overview#limits)                                                                                                                           | [May be more expensive for extremely large servers (lots of storage)](https://docs.hetzner.com/cloud/servers/backups-snapshots/overview#pricing) |
+| [Are cheaper than backups for smaller servers (less storage space)](https://docs.hetzner.com/cloud/servers/backups-snapshots/overview#pricing)                                                                                                        |                                                                                                                                                  |
+| Are not server bound (Backups will be deleted if you delete the cloud server)                                                                                                                                                                         |                                                                                                                                                  |
+| New servers can be created directly from the snapshot                                                                                                                                                                                                 |                                                                                                                                                  |
+| [Snapshots are stored in a different location (same network zone) than the cloud server (Backups only in the same location as the cloud)](https://docs.hetzner.com/cloud/servers/backups-snapshots/faq/#what-location-are-backupssnapshots-stored-in) |                                                                                                                                                  |
+| [Snapshots can be moved to another project](https://docs.hetzner.com/cloud/servers/backups-snapshots/faq/#are-backupssnapshots-moveable)                                                                                                              |                                                                                                                                                  |
