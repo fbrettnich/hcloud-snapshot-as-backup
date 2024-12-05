@@ -17,14 +17,17 @@ servers = {}
 servers_keep_last = {}
 snapshot_list = {}
 
+exit_code = 0
 
 def get_servers(page=1):
+    global exit_code
     url = base_url + f"/servers?label_selector={label_selector}=true&page=" + str(page)
     r = requests.get(url=url, headers=headers)
 
     if not r.ok:
         print(f"Servers Page #{page} could not be retrieved: {r.reason}")
         print(r.text)
+        exit_code = 1
 
     else:
         r = r.json()
@@ -47,6 +50,7 @@ def get_servers(page=1):
 
 
 def create_snapshot(server_id, snapshot_desc):
+    global exit_code
     url = base_url + "/servers/" + str(server_id) + "/actions/create_image"
     r = requests.post(
         url=url,
@@ -57,18 +61,21 @@ def create_snapshot(server_id, snapshot_desc):
     if not r.ok:
         print(f"Snapshot for Server #{server_id} could not be created: {r.reason}")
         print(r.text)
+        exit_code = 1
     else:
         image_id = r.json()['image']['id']
         print(f"Snapshot #{image_id} (Server #{server_id}) has been created")
 
 
 def get_snapshots(page=1):
+    global exit_code
     url = base_url + f"/images?type=snapshot&label_selector={label_selector}&page=" + str(page)
     r = requests.get(url=url, headers=headers)
 
     if not r.ok:
         print(f"Snapshots Page #{page} could not be retrieved: {r.reason}")
         print(r.text)
+        exit_code = 1
 
     else:
         r = r.json()
@@ -101,21 +108,23 @@ def cleanup_snapshots():
 
 
 def delete_snapshots(snapshot_id, server_id):
+    global exit_code
     url = base_url + "/images/" + str(snapshot_id)
     r = requests.delete(url=url, headers=headers)
 
     if not r.ok:
         print(f"Snapshot #{snapshot_id} (Server #{server_id}) could not be deleted: {r.reason}")
         print(r.text)
+        exit_code = 1
     else:
         print(f"Snapshot #{snapshot_id} (Server #{server_id}) was successfully deleted")
 
 
 def run():
-
+    global exit_code
     if api_token is None:
         print("API token is missing... Exit.")
-        sys.exit(0)
+        sys.exit(1)
 
     servers.clear()
     servers_keep_last.clear()
@@ -161,6 +170,7 @@ if __name__ == '__main__':
 
         if cron_string is False or cron_string.lower() == 'false':
             run()
+            sys.exit(exit_code)
 
         else:
             print(f"Starting CronScheduler [{cron_string}]...")
@@ -186,3 +196,4 @@ if __name__ == '__main__':
         keep_last_default = int(config['keep-last'])
 
         run()
+        sys.exit(exit_code)
