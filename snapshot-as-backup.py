@@ -16,8 +16,8 @@ headers = {}
 servers = {}
 servers_keep_last = {}
 snapshot_list = {}
-
 exit_code = 0
+
 
 def get_servers(page=1):
     global exit_code
