@@ -1,0 +1,119 @@
+# Default values for hcloud-snapshot-as-backup.
+# https://github.com/fbrettnich/hcloud-snapshot-as-backup
+
+image:
+  repository: fbrettnich/hcloud-snapshot-as-backup
+  # Overrides the image tag, which defaults to the chart appVersion.
+  tag: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+
+nameOverride: ""
+fullnameOverride: ""
+
+# -- Hetzner Cloud projects to back up. One CronJob is created per entry.
+# Every field documented below the "chart-wide defaults" section can be
+# overridden per project.
+#
+# projects:
+#   - name: production                  # required, must be unique (used in resource names)
+#     apiToken: "abc123..."             # Hetzner Cloud API token (read & write)
+#     schedule: "0 1 * * *"
+#     keepLast: 7
+#   - name: staging
+#     existingSecret: hcloud-staging    # use a Secret you manage yourself instead of apiToken
+#     existingSecretKey: API_TOKEN      # key inside that Secret (default: API_TOKEN)
+#     schedule: "0 3 * * 0"
+#     keepLast: 2
+#     labelSelector: AUTOBACKUP
+#     snapshotName: "%name%-%date%"
+projects: []
+
+## Chart-wide defaults - used for every project that does not override them.
+
+# -- Cron expression for the CronJob. Interpreted by Kubernetes, not by the
+# container (the container's own scheduler is always disabled by this chart).
+schedule: "0 1 * * *"
+
+# -- Time zone for the schedule, e.g. "Europe/Berlin" (requires Kubernetes >= 1.27).
+# Also passed to the container as TZ so %date% / %time% in snapshotName match.
+timeZone: ""
+
+# -- Naming pattern for created snapshots.
+# Placeholders: %id% %name% %timestamp% %date% %time%
+snapshotName: "%name%-%timestamp%"
+
+# -- Servers carrying this label with value "true" are backed up.
+labelSelector: "AUTOBACKUP"
+
+# -- How many snapshots to keep per server. Can be overridden per server with
+# the Hetzner label <labelSelector>.KEEP-LAST.
+keepLast: 3
+
+# -- Suspend the CronJob without deleting it.
+suspend: false
+
+concurrencyPolicy: Forbid
+successfulJobsHistoryLimit: 3
+failedJobsHistoryLimit: 3
+startingDeadlineSeconds: null
+
+# -- Never/0 by default: a retry would create a second snapshot for servers that
+# already succeeded before the run failed. Raise only if you accept duplicates.
+restartPolicy: Never
+backoffLimit: 0
+
+# -- Kill a run that hangs (seconds). null disables the limit.
+activeDeadlineSeconds: 3600
+
+# -- Auto-delete finished Jobs after this many seconds. null keeps the history
+# limits above in charge.
+ttlSecondsAfterFinished: null
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+  limits:
+    memory: 128Mi
+
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 10001
+  runAsGroup: 10001
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+serviceAccount:
+  create: false
+  name: ""
+  annotations: {}
+
+# -- The script only talks to the Hetzner API, it never needs the Kubernetes API.
+automountServiceAccountToken: false
+
+nodeSelector: {}
+tolerations: []
+affinity: {}
+priorityClassName: ""
+
+podLabels: {}
+podAnnotations: {}
+commonLabels: {}
+commonAnnotations: {}
+
+# -- Extra environment variables for every container, e.g. HTTPS_PROXY.
+extraEnv: []
+#  - name: HTTPS_PROXY
+#    value: http://proxy.internal:3128
+
+extraVolumes: []
+extraVolumeMounts: []

@@ -1,0 +1,22 @@
+{{ .Chart.Name }} {{ .Chart.Version }} has been deployed to namespace {{ .Release.Namespace }}.
+
+The following CronJobs were created:
+{{ range $project := .Values.projects }}
+  - {{ include "hcloud-snapshot-as-backup.projectFullname" (dict "root" $ "project" $project) }}
+      schedule:       {{ $project.schedule | default $.Values.schedule }}{{ with ($project.timeZone | default $.Values.timeZone) }} ({{ . }}){{ end }}
+      label selector: {{ $project.labelSelector | default $.Values.labelSelector }}
+      keep last:      {{ $project.keepLast | default $.Values.keepLast }}
+{{- end }}
+
+Check them with:
+  kubectl get cronjobs -n {{ .Release.Namespace }} -l app.kubernetes.io/instance={{ .Release.Name }}
+
+Servers are only backed up if they carry the Hetzner label
+"{{ .Values.labelSelector }}" with the value "true".
+
+Trigger a run immediately to verify your setup:
+{{- $first := first .Values.projects }}
+{{- if $first }}
+  kubectl create job -n {{ .Release.Namespace }} --from=cronjob/{{ include "hcloud-snapshot-as-backup.projectFullname" (dict "root" $ "project" $first) }} manual-test
+  kubectl logs -n {{ .Release.Namespace }} job/manual-test -f
+{{- end }}

@@ -1,0 +1,145 @@
+{{- $root := . -}}
+{{- $g := .Values -}}
+{{- range $project := .Values.projects }}
+{{- $name := include "hcloud-snapshot-as-backup.projectFullname" (dict "root" $root "project" $project) }}
+{{- $schedule := $project.schedule | default $g.schedule }}
+{{- $timeZone := $project.timeZone | default $g.timeZone }}
+{{- /* hasKey instead of "default" for values where 0 / false are meaningful */ -}}
+{{- $suspend := $g.suspend }}
+{{- if hasKey $project "suspend" }}{{ $suspend = $project.suspend }}{{ end }}
+{{- $backoffLimit := $g.backoffLimit }}
+{{- if hasKey $project "backoffLimit" }}{{ $backoffLimit = $project.backoffLimit }}{{ end }}
+{{- $successfulJobsHistoryLimit := $g.successfulJobsHistoryLimit }}
+{{- if hasKey $project "successfulJobsHistoryLimit" }}{{ $successfulJobsHistoryLimit = $project.successfulJobsHistoryLimit }}{{ end }}
+{{- $failedJobsHistoryLimit := $g.failedJobsHistoryLimit }}
+{{- if hasKey $project "failedJobsHistoryLimit" }}{{ $failedJobsHistoryLimit = $project.failedJobsHistoryLimit }}{{ end }}
+{{- $keepLast := $project.keepLast | default $g.keepLast }}
+{{- $snapshotName := $project.snapshotName | default $g.snapshotName }}
+{{- $labelSelector := $project.labelSelector | default $g.labelSelector }}
+{{- $resources := $project.resources | default $g.resources }}
+{{- $nodeSelector := $project.nodeSelector | default $g.nodeSelector }}
+{{- $tolerations := $project.tolerations | default $g.tolerations }}
+{{- $affinity := $project.affinity | default $g.affinity }}
+{{- $extraEnv := concat ($g.extraEnv | default list) ($project.extraEnv | default list) }}
+---
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: {{ $name }}
+  namespace: {{ $root.Release.Namespace }}
+  labels:
+    {{- include "hcloud-snapshot-as-backup.labels" $root | nindent 4 }}
+    app.kubernetes.io/component: {{ $project.name }}
+  {{- with $root.Values.commonAnnotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  schedule: {{ $schedule | quote }}
+  {{- with $timeZone }}
+  timeZone: {{ . | quote }}
+  {{- end }}
+  {{- with $suspend }}
+  suspend: {{ . }}
+  {{- end }}
+  concurrencyPolicy: {{ $project.concurrencyPolicy | default $g.concurrencyPolicy }}
+  successfulJobsHistoryLimit: {{ $successfulJobsHistoryLimit }}
+  failedJobsHistoryLimit: {{ $failedJobsHistoryLimit }}
+  {{- with $project.startingDeadlineSeconds | default $g.startingDeadlineSeconds }}
+  startingDeadlineSeconds: {{ . }}
+  {{- end }}
+  jobTemplate:
+    metadata:
+      labels:
+        {{- include "hcloud-snapshot-as-backup.labels" $root | nindent 8 }}
+        app.kubernetes.io/component: {{ $project.name }}
+    spec:
+      backoffLimit: {{ $backoffLimit }}
+      {{- with $project.activeDeadlineSeconds | default $g.activeDeadlineSeconds }}
+      activeDeadlineSeconds: {{ . }}
+      {{- end }}
+      {{- with $project.ttlSecondsAfterFinished | default $g.ttlSecondsAfterFinished }}
+      ttlSecondsAfterFinished: {{ . }}
+      {{- end }}
+      template:
+        metadata:
+          labels:
+            {{- include "hcloud-snapshot-as-backup.labels" $root | nindent 12 }}
+            app.kubernetes.io/component: {{ $project.name }}
+            {{- with $g.podLabels }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
+          {{- with $g.podAnnotations }}
+          annotations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+        spec:
+          restartPolicy: {{ $project.restartPolicy | default $g.restartPolicy }}
+          serviceAccountName: {{ include "hcloud-snapshot-as-backup.serviceAccountName" $root }}
+          automountServiceAccountToken: {{ $g.automountServiceAccountToken }}
+          {{- with $g.imagePullSecrets }}
+          imagePullSecrets:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $g.podSecurityContext }}
+          securityContext:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $g.priorityClassName }}
+          priorityClassName: {{ . }}
+          {{- end }}
+          {{- with $nodeSelector }}
+          nodeSelector:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $tolerations }}
+          tolerations:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          {{- with $affinity }}
+          affinity:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+          containers:
+            - name: {{ $root.Chart.Name }}
+              image: "{{ $g.image.repository }}:{{ $g.image.tag | default $root.Chart.AppVersion }}"
+              imagePullPolicy: {{ $g.image.pullPolicy }}
+              {{- with $g.securityContext }}
+              securityContext:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+              env:
+                # The container's own CronScheduler is disabled - Kubernetes does the scheduling.
+                - name: CRON
+                  value: "false"
+                - name: API_TOKEN
+                  valueFrom:
+                    secretKeyRef:
+                      name: {{ include "hcloud-snapshot-as-backup.secretName" (dict "root" $root "project" $project) }}
+                      key: {{ include "hcloud-snapshot-as-backup.secretKey" (dict "root" $root "project" $project) }}
+                - name: SNAPSHOT_NAME
+                  value: {{ $snapshotName | quote }}
+                - name: LABEL_SELECTOR
+                  value: {{ $labelSelector | quote }}
+                - name: KEEP_LAST
+                  value: {{ $keepLast | quote }}
+                {{- with $timeZone }}
+                - name: TZ
+                  value: {{ . | quote }}
+                {{- end }}
+                {{- with $extraEnv }}
+                {{- toYaml . | nindent 16 }}
+                {{- end }}
+              {{- with $resources }}
+              resources:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+              {{- with $g.extraVolumeMounts }}
+              volumeMounts:
+                {{- toYaml . | nindent 16 }}
+              {{- end }}
+          {{- with $g.extraVolumes }}
+          volumes:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+{{- end }}

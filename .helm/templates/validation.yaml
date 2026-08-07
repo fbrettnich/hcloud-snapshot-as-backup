@@ -1,0 +1,1 @@
+{{- include "hcloud-snapshot-as-backup.validate" . -}}

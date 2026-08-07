@@ -6,6 +6,7 @@ For ease of use, the script works with the powerful labels directly in the Hetzn
 - [Installation](#installation)
   - [With Docker (Recommended)](#installation-with-docker-recommended)
   - [With Docker Compose](#installation-with-docker-compose)
+  - [On Kubernetes with Helm](#installation-on-kubernetes-with-helm)
   - [Without Docker](#installation-without-docker)
 - [Configuration](#configuration)
   - [Generate Hetzner Cloud Console API-Key](#generate-hetzner-cloud-console-api-key)
@@ -56,6 +57,45 @@ docker-compose up -d
 
 ---
 
+### Installation: On Kubernetes with Helm
+A Helm chart is included in the [`.helm`](https://github.com/fbrettnich/hcloud-snapshot-as-backup/tree/main/.helm) directory.
+It deploys the script as a Kubernetes CronJob and supports **multiple Hetzner Cloud projects in a single release** — one CronJob per project, each with its own API token, schedule, label selector and retention.
+
+**1. Clone this repository**
+```
+git clone https://github.com/fbrettnich/hcloud-snapshot-as-backup.git
+cd hcloud-snapshot-as-backup
+```
+
+**2. Create a values file**
+```yaml
+# values.yaml
+timeZone: "Europe/Berlin"
+
+projects:
+  - name: production
+    apiToken: "YOUR_HETZNER_API_TOKEN"
+    schedule: "0 1 * * *"
+    keepLast: 7
+
+  - name: staging
+    existingSecret: hcloud-staging   # Secret you manage yourself
+    schedule: "0 3 * * 0"
+    keepLast: 2
+```
+
+**3. Install the chart**
+```
+helm install hcloud-snapshot-as-backup ./.helm \
+  --namespace hcloud-snapshot-as-backup --create-namespace \
+  -f values.yaml
+```
+
+Scheduling is handled by Kubernetes, so the chart always sets `CRON=false` in the container.
+All available options are documented in the [chart README](https://github.com/fbrettnich/hcloud-snapshot-as-backup/blob/main/.helm/README.md).
+
+---
+
 ### Installation: Without Docker
 **1. Clone this repository**  
 ```
@@ -100,6 +140,7 @@ This crontab executes the script every day at 1am.
 Depending on how you run the script, you will need to configure.  
 When you run the script using Docker, the options are set by environment variables.  
 When you run the script via command/crontab, the options are set via the configuration file ([`config.json`](https://github.com/fbrettnich/hcloud-snapshot-as-backup/blob/main/config-example.json)).  
+When you deploy the script with Helm, the options are set per project in your values file ([chart README](https://github.com/fbrettnich/hcloud-snapshot-as-backup/blob/main/.helm/README.md)).  
 
 ### Generate Hetzner Cloud Console API-Key  
 1. Login to [Hetzner Cloud Console](https://console.hetzner.cloud/)

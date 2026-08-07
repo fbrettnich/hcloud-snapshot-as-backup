@@ -1,0 +1,33 @@
+# Example configuration with two Hetzner Cloud projects.
+# Install with:
+#   helm install hcloud-snapshot-as-backup ./.helm -f values-example.yaml
+
+# Chart-wide defaults, inherited by every project below.
+schedule: "0 1 * * *"
+timeZone: "Europe/Berlin"
+keepLast: 3
+
+projects:
+  # Project 1: token managed by the chart (ends up in a Helm-created Secret).
+  - name: production
+    apiToken: "PASTE_YOUR_HETZNER_API_TOKEN_HERE"
+    schedule: "0 1 * * *"
+    keepLast: 7
+
+  # Project 2: token managed outside of Helm, e.g. by SealedSecrets or the
+  # External Secrets Operator.
+  #   kubectl create secret generic hcloud-staging --from-literal=API_TOKEN=...
+  - name: staging
+    existingSecret: hcloud-staging
+    existingSecretKey: API_TOKEN
+    schedule: "0 3 * * 0"
+    keepLast: 2
+    snapshotName: "%name%-%date%"
+
+  # Project 3: different Hetzner label, so it can back up a different set of
+  # servers in the same or another project.
+  - name: customer-abc
+    existingSecret: hcloud-customer-abc
+    schedule: "30 2 * * *"
+    labelSelector: "NIGHTLY"
+    keepLast: 14

@@ -1,0 +1,18 @@
+apiVersion: v2
+name: hcloud-snapshot-as-backup
+description: Automatically create snapshots of your Hetzner Cloud Servers and delete the old ones, scheduled as Kubernetes CronJobs
+type: application
+version: 0.1.0
+appVersion: "latest"
+keywords:
+  - hetzner
+  - hcloud
+  - snapshot
+  - backup
+  - cronjob
+home: https://github.com/fbrettnich/hcloud-snapshot-as-backup
+sources:
+  - https://github.com/fbrettnich/hcloud-snapshot-as-backup
+maintainers:
+  - name: fbrettnich
+    url: https://github.com/fbrettnich

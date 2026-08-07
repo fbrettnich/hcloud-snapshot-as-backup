@@ -16,6 +16,7 @@
 **/*.jfm
 **/bin
 **/charts
+**/.helm
 **/docker-compose*
 **/compose.y*ml
 **/Dockerfile*
